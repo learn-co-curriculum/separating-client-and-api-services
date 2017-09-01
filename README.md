@@ -8,7 +8,7 @@
 
 ## Introduction: 
 
-In the last lesson we built out the beginning of our Iron Starter API. We've moved that app to this lesson, so you should be able to run:
+In the last lesson we built out the beginning of our Iron Starter API. We've moved that app to this lesson, so we should be able to run:
 
 ```bash 
 bundle install
@@ -41,13 +41,39 @@ and add some basic html
 <body>
 
   <h1>Fetch All The Things</h1>
-
+  <h4>Create Campaign</h4>
+  <form id="campaign-form">
+    <div>
+        <div>
+            <label for="title">Title: </label>
+        </div>
+        <input type="text" placeholder="title" name="title" />
+    </div>
+    <div>
+        <div>
+            <label for="description">Description: </label>
+        </div>
+        <textarea placeholder="description" name="description"></textarea>
+    </div>
+    <div>
+        <div>
+            <label for="goal">Goal: </label>
+        </div>
+        <input type="number" placeholder="goal" name="goal" />
+    </div>
+    <div>
+        <div>
+            <label for="pledged">Pledged: </label>
+        </div>
+        <input type="number" placeholder="pledged" name="pledged" />
+    </div>
+    <div>
+        <input type="submit" value="Add Campaign" />
+    </div>
+  </form>
   <h3>Campaigns:</h3>
   <ol id="campaigns-list">
   </ol>
-  <script>
-  
-  </script>
 </body>
 </html>
 ```
@@ -58,41 +84,68 @@ We can check out this code by running a mock ruby server on port 8000
 ruby -rwebrick -e'WEBrick::HTTPServer.new(:Port => 8000, :DocumentRoot => Dir.pwd).start'
 ```
 
-Please use Safari or Firefox browser, as chrome might have security disabled for GET requests (We will talk about this later in the lesson). 
-
-If you open your browser and go to localhost:8000 you should see something like this
+If we open the browser and go to localhost:8000 we should see something like this
 
 ![basic client app image 1](https://s3.amazonaws.com/learn-verified/basic-client-app-image-1-react-and-rails.png)
 
-Kind of bland at the moment, but lets make a __fetch__ request to our rails api to get a list of campaigns and render them to the DOM. 
+Kind of bland at the moment, but lets add some code that allows ut to make a __fetch__ request to our rails api to get a list of campaigns and render them to the DOM. We should also add POST __fetch__ request to create a new campaign.
 
 let's add the following code inside of the `<script></script>` tags in the `index.html` file
 
 ```javascript 
 <script>
     (function() {
+
+        document.querySelector('#campaign-form').addEventListener('submit', function(event) { 
+            event.preventDefault();
+            const form = this;
+            const campaignParams = {
+                title: getValue('input', 'title'),
+                description: getValue('textarea', 'description'),
+                goal: getValue('input', 'goal'),
+                pledged: getValue('input', 'pledged')
+            };
+            return fetch('http://localhost:3000/api/campaigns', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    campaign: campaignParams
+                })
+            })
+            .then(response => response.json())
+            .then(campaign => renderCampaign(campaign));
+        });
+
+        const getValue = (inputType, name) => {
+            return document.querySelector(`${inputType}[name="${name}"]`).value;
+        }
+
+        const renderCampaign = campaign => {
+            const orderedCampaignsListElement = document.querySelector('#campaigns-list');
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <h3>${campaign.title}</h3>
+                <h4>Goal: $${campaign.goal}</h4>
+                <h4>Pledged: $${campaign.pledged}</h4>
+                <p>${campaign.description}</p>
+            `
+            orderedCampaignsListElement.appendChild(li);
+        }
+
         fetch('http://localhost:3000/api/campaigns')
             .then(response => response.json())
             .then(campaigns => {
-                const orderedCampaignsListElement = document.querySelector('#campaigns-list');
-                campaigns.forEach(campaign => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <h3>${campaign.title}</h3>
-                        <h4>Goal: $${campaign.goal}</h4>
-                        <h4>Pledged: $${campaign.pledged}</h4>
-                        <p>${campaign.description}</p>
-                    `
-                    orderedCampaignsListElement.appendChild(li);
-                });
+                campaigns.forEach(campaign => renderCampaign(campaign));
             });
     }());
 </script>
 ```
 
-If you refresh the browser you should see the list of campaigns rendered neatly inside of our __<ol>__ tag.
+If we refresh the browser we should see the list of campaigns rendered neatly inside of our __<ol>__ tag (depending on the browser in use the campaigns might not render). let's open up our dev tools console and try to make a campaign with the form. Once we click submit we should be able to create the campaign.
 
-Oh wait!! nothing (if you see it rendering the campaigns you might have security disabled). If you open up the dev console you should see an error like this. 
+Oh wait!! nothing was added to the list. If we check out the dev console we should see an error like this. 
 
 ![basic client app image 2 console errors](https://s3.amazonaws.com/learn-verified/basic-client-app-image-2-react-and-rails.png)
 
@@ -100,7 +153,7 @@ So what does Cross-Origin Request Blocked: The Same Origin Policy disallows read
 
 ### CORS (Cross-Origin Resource Sharing) 101
 
-So we've uncovered a new error and now is a good time to grab and seat and buckle up as we talk about Cross-Origin Resource Sharing(CORS). CORS is a mechanism in place that gives web servers cross-domain access controls, so that it can secure who is able to make data transfers. We probably don't want just anyone to access our application, CORS allows us to lock down which Domains can access our app. You can find more information about it at [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS).
+So we've uncovered a new error and now is a good time to grab and seat and buckle up as we talk about Cross-Origin Resource Sharing(CORS). CORS is a mechanism in place that gives web servers cross-domain access controls, so that it can secure who is able to make data transfers. We probably don't want just anyone to access our application, CORS allows us to lock down which Domains can access our app. More information can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS).
 
 ### Handling CORS 
 
@@ -132,7 +185,7 @@ end
 
 This code allows our `localhost:8000` port to make requests using all of HTTP verbs with options and headers. 
 
-Let's restart our __rails server__ (since we changed an initializer we need to restart for this to run correctly) and run the app in the browser one more time and try it out. You should see something like this:
+Let's restart our __rails server__ (since we changed an initializer we need to restart for this to run correctly) and run the app in the browser one more time and try it out. This is what the app should look like now.
 
 ![Successful API Request](https://s3.amazonaws.com/learn-verified/basic-client-app-image-3-react-and-rails.png)
 
