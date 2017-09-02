@@ -1,8 +1,8 @@
-# Seperating Client And API Services
+# Separating Client And API Services
 
 ## Objectives
 
-* Learn the benefits of creating seperate applications using an API layer and Client App Layer
+* Learn the benefits of creating separate applications using an API layer and Client App Layer
 * Walk through building a simple API/Client layer app
 * Discuss how CORS works and how to use Rack CORS Gem
 
@@ -22,13 +22,13 @@ In this lesson we are going to create a small client application that connects t
 
 ### Client APP 
 
-Lets create a simple index.html file in the root of our directory 
+First let's create a simple index.html file in the root of our directory:
 
 ```bash 
 touch index.html
 ```
 
-and add some basic html
+and add some basic html:
 
 ```html 
 <!doctype html>
@@ -78,7 +78,7 @@ and add some basic html
 </html>
 ```
 
-We can check out this code by running a mock ruby server on port 8000
+We can check out this code by running a mock ruby server on port 8000.
 
 ```bash 
 ruby -rwebrick -e'WEBrick::HTTPServer.new(:Port => 8000, :DocumentRoot => Dir.pwd).start'
@@ -199,4 +199,4 @@ In this lesson we learned how to setup a basic Ruby server and run a small clien
 [Rack CORS Middleware GEM](https://github.com/cyu/rack-cors)
 [What is CORS?](https://www.maxcdn.com/one/visual-glossary/cors/)
 
-<p class='util--hide'>View <a href='https://learn.co/lessons/seperating-client-and-api-services'>Sepearting Client and API Services</a> on Learn.co and start learning to code for free.</p>
+<p class='util--hide'>View <a href='https://learn.co/lessons/separating-client-and-api-services'>Separating Client and API Services</a> on Learn.co and start learning to code for free.</p>
