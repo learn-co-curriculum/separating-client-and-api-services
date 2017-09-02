@@ -86,7 +86,7 @@ ruby -rwebrick -e'WEBrick::HTTPServer.new(:Port => 8000, :DocumentRoot => Dir.pw
 
 If we open the browser and go to localhost:8000 we should see something like this
 
-![basic client app image 1](https://s3.amazonaws.com/learn-verified/basic-client-app-image-1-react-and-rails.png)
+![client app image 1](https://s3.amazonaws.com/learn-verified/basic-client-app-image-1-react-and-rails.png)
 
 Kind of bland at the moment, but lets add some code that allows ut to make a __fetch__ request to our rails api to get a list of campaigns and render them to the DOM. We should also add POST __fetch__ request to create a new campaign.
 
